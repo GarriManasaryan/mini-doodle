@@ -1,0 +1,17 @@
+services:
+  database:
+    image: postgres:16.3
+    container_name: postgresql_db
+    environment:
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_USER: ${PG_USERNAME}
+    volumes:
+      - pg_volumes:/var/lib/postgresql/data
+    expose:
+      - "5433"
+    ports:
+      - "5433:5433"
+    command: -p 5433
+
+volumes:
+  pg_volumes:

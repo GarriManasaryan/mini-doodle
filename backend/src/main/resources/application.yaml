@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: meetingscheduler
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/doodle_mini_db
+    username: ${PG_USERNAME}
+    password: ${PG_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    baseline-on-migrate: true
