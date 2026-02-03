@@ -68,7 +68,10 @@ Example:
 PG_USERNAME=postgres  
 PG_PASSWORD=1  
 PG_DATABASE_NAME=doodle_mini_db
+PG_HOST=localhost
 
+* when launching the backend from intelj (PG_HOST=localhost), 
+* from docker (PG_HOST=doodle_pg, container name from docker-compose)
 ---
 
 ## Step 2: Build the application JAR
@@ -139,7 +142,7 @@ Alternatively you can spin up only the database and launch the app from Intelj
 
 Sample data is provided in .docker/seed/seed.sql
 
-Apply it manually:
+Apply manually via console or terminal:
 
 ```bash
 
