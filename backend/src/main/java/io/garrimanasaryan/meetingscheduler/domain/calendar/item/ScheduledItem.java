@@ -1,7 +1,10 @@
 package io.garrimanasaryan.meetingscheduler.domain.calendar.item;
 
+import io.garrimanasaryan.meetingscheduler.application.IdGenerator;
+import io.garrimanasaryan.meetingscheduler.domain.calendar.item.definition.ScheduledItemDefinition;
 import io.garrimanasaryan.meetingscheduler.domain.common.Domain;
 import io.garrimanasaryan.meetingscheduler.domain.common.Metadata;
+import io.garrimanasaryan.meetingscheduler.domain.common.TitleDescription;
 import io.garrimanasaryan.meetingscheduler.domain.common.recurring.Daily;
 import io.garrimanasaryan.meetingscheduler.domain.common.recurring.Monthly;
 import io.garrimanasaryan.meetingscheduler.domain.common.recurring.Weekly;
@@ -9,6 +12,8 @@ import io.garrimanasaryan.meetingscheduler.domain.common.recurring.Yearly;
 import io.garrimanasaryan.meetingscheduler.domain.common.timing.CalendarEventTiming;
 import io.garrimanasaryan.meetingscheduler.domain.common.timing.RecurringEventTiming;
 import io.garrimanasaryan.meetingscheduler.domain.common.timing.SingleEventTiming;
+import io.garrimanasaryan.meetingscheduler.domain.policy.timeslot.RecurringEventTimingPolicy;
+import io.garrimanasaryan.meetingscheduler.domain.policy.timeslot.SingleEventTimingPolicy;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.DayOfWeek;
@@ -21,21 +26,84 @@ import java.time.temporal.TemporalAdjusters;
 public record ScheduledItem(
         @NotNull String id,
         @NotNull String calendarId,
+        @NotNull String organizerUserId,
+        @NotNull TitleDescription titleDescription,
         @NotNull CalendarEventTiming calendarEventTiming,
+        @NotNull ScheduledItemDefinition scheduledItemDefinition,
         @NotNull boolean isCancelled,
         @NotNull Metadata metadata
 ) implements Domain {
 
-    public Domain delete(String by) {
-        return null;
+    public static ScheduledItem of(
+            @NotNull String by,
+            @NotNull String calendarId,
+            @NotNull String organizerUserId,
+            @NotNull TitleDescription titleDescription,
+            @NotNull CalendarEventTiming calendarEventTiming,
+            @NotNull ScheduledItemDefinition scheduledItemDefinition,
+            @NotNull boolean isCancelled
+    ){
+        validate(calendarEventTiming);
+        return new ScheduledItem(
+                IdGenerator.generate("sci"),
+                calendarId,
+                organizerUserId,
+                titleDescription,
+                calendarEventTiming,
+                scheduledItemDefinition,
+                isCancelled,
+                Metadata.create(by)
+        );
     }
 
-    public ScheduledItemStatus status(Instant now){
+    public ScheduledItem update(
+            @NotNull String by,
+            @NotNull TitleDescription titleDescription,
+            @NotNull CalendarEventTiming calendarEventTiming,
+            @NotNull ScheduledItemDefinition scheduledItemDefinition,
+            @NotNull boolean isCancelled
+    ){
+        validate(calendarEventTiming);
+        return new ScheduledItem(
+                id,
+                calendarId,
+                organizerUserId,
+                titleDescription,
+                calendarEventTiming,
+                scheduledItemDefinition,
+                isCancelled,
+                metadata.update(by)
+        );
+    }
+
+    public ScheduledItem delete(String by) {
+        return new ScheduledItem(
+                id,
+                calendarId,
+                organizerUserId,
+                titleDescription,
+                calendarEventTiming,
+                scheduledItemDefinition,
+                isCancelled,
+                metadata.delete(by)
+        );
+    }
+
+    private static void validate(@NotNull CalendarEventTiming calendarEventTiming){
+        switch (calendarEventTiming){
+            case SingleEventTiming singleEventTiming ->
+                    SingleEventTimingPolicy.validate(singleEventTiming);
+            case RecurringEventTiming recurringEventTiming ->
+                    RecurringEventTimingPolicy.validate(recurringEventTiming);
+        }
+    }
+
+    public ScheduledItemStatus status(){
         if (isCancelled) return ScheduledItemStatus.CANCELLED;
 
         return switch (calendarEventTiming){
-            case SingleEventTiming single -> resolveSingleStatus(now, single);
-            case RecurringEventTiming recurring -> resolveRecurringStatus(now, recurring);
+            case SingleEventTiming single -> resolveSingleStatus(Instant.now(), single);
+            case RecurringEventTiming recurring -> resolveRecurringStatus(Instant.now(), recurring);
         };
     }
 

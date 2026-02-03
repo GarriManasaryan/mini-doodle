@@ -27,7 +27,11 @@ public class JdbcExecutor {
             @NotNull MapSqlParameterSource params,
             @NotNull RowMapper<T> rowMapper
     ){
-        return jdbcTemplate.query(sql, params, rowMapper);
+        try {
+            return jdbcTemplate.query(sql, params, rowMapper);
+        } catch (DataAccessException e) {
+            throw new DatabaseException("DB error", e);
+        }
     }
 
     public void update(@NotNull String sql, @NotNull MapSqlParameterSource parameterSource){

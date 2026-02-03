@@ -35,8 +35,7 @@ public class PgCalendarRepo implements CalendarRepo {
                 .addValue("subject_user_id", entity.subjectUserId())
                 .addValue("title", entity.titleDescription().title())
                 .addValue("description", entity.titleDescription().description().orElse(null))
-                .addValue("type", entity.type().name())
-                .addValue("allow_overlap", entity.allowOverlap());
+                .addValue("type", entity.type().name());
 
         return GeneralSerializer.metadataAdder(params, entity);
     }
@@ -68,7 +67,6 @@ public class PgCalendarRepo implements CalendarRepo {
                         rs.getString("working_hours"),
                         new TypeReference<>() {}
                 ),
-                rs.getBoolean("allow_overlap"),
                 MetadataMapper.metadataMapper(rs)
         );
     }
@@ -79,19 +77,18 @@ public class PgCalendarRepo implements CalendarRepo {
         insert into dm_calendar
           (
             id, managed_by_user_id, subject_user_id, title, description,
-            type, allow_overlap, created_at, updated_at, created_by, updated_by, is_deleted
+            type, created_at, updated_at, created_by, updated_by, is_deleted
           )
         values
           (
             :id, :managed_by_user_id, :subject_user_id, :title, :description, :type,
-            :allow_overlap, :created_at, :updated_at, :created_by, :updated_by, :is_deleted
+            :created_at, :updated_at, :created_by, :updated_by, :is_deleted
           )
         on conflict (id) do
           update set
             title = excluded.title,
             description = excluded.description,
             type = excluded.type,
-            allow_overlap = excluded.allow_overlap,
             updated_at = excluded.updated_at,
             is_deleted = excluded.is_deleted,
             updated_by = excluded.updated_by
@@ -128,7 +125,6 @@ workingHour -> {
           c.title,
           c.description,
           c.type,
-          c.allow_overlap,
           c.created_at,
           c.updated_at,
           c.created_by,
@@ -169,7 +165,6 @@ workingHour -> {
           c.title,
           c.description,
           c.type,
-          c.allow_overlap,
           c.created_at,
           c.updated_at,
           c.created_by,
@@ -180,65 +175,4 @@ workingHour -> {
         return jdbcExecutor.query(select, params, calendarRowMapper()).stream().findFirst();
     }
 
-    @Override
-    public List<Calendar> all(@NotNull String userId) {
-        var select = """
-        select
-          c.id,
-          c.managed_by_user_id,
-          c.subject_user_id,
-          c.title,
-          c.description,
-          c.type,
-          c.allow_overlap,
-          c.created_at,
-          c.updated_at,
-          c.created_by,
-          c.is_deleted,
-          c.updated_by,
-          coalesce(
-            jsonb_agg(
-              jsonb_build_object(
-                'dayOfWeek',
-                 case cw.day_of_week
-                   when 1 then 'MONDAY'
-                   when 2 then 'TUESDAY'
-                   when 3 then 'WEDNESDAY'
-                   when 4 then 'THURSDAY'
-                   when 5 then 'FRIDAY'
-                   when 6 then 'SATURDAY'
-                   when 7 then 'SUNDAY'
-                 end,
-                'startAt', cw.start_at,
-                'duration',
-                  (
-                   'PT' ||
-                   extract(hour from cw.duration)::int || 'H' ||
-                   extract(minute from cw.duration)::int || 'M' ||
-                   extract(second from cw.duration)::int || 'S'
-                  )
-              )
-            ) filter (where cw.calendar_id is not null),
-            '[]'::jsonb
-          ) as working_hours
-        from dm_calendar c
-        left join dm_calendar_working_hour cw on cw.calendar_id = c.id
-        where c.managed_by_user_id = :user_id
-        group by
-          c.id,
-          c.managed_by_user_id,
-          c.subject_user_id,
-          c.title,
-          c.description,
-          c.type,
-          c.allow_overlap,
-          c.created_at,
-          c.updated_at,
-          c.is_deleted,
-          c.created_by,
-          c.updated_by
-        """;
-        var params = new MapSqlParameterSource().addValue("user_id", userId);
-        return jdbcExecutor.query(select, params, calendarRowMapper());
-    }
 }

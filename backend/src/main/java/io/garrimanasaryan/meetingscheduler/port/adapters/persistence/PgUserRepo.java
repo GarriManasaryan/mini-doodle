@@ -74,16 +74,4 @@ public class PgUserRepo implements UserRepo {
         return jdbcExecutor.query(select, params, userRowMapper()).stream().findFirst();
     }
 
-    @Override
-    public List<User> all(@NotNull String userId) {
-        var select = """
-        select
-          c.id, c.name, c.email, c.zone_id, c.created_at,
-          c.updated_at, c.created_by, c.updated_by, c.is_deleted
-        from dm_user c
-        where c.id = :user_id and c.is_deleted = false
-        """;
-        var params = new MapSqlParameterSource().addValue("user_id", userId);
-        return jdbcExecutor.query(select, params, userRowMapper());
-    }
 }

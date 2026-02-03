@@ -1,7 +1,6 @@
 package io.garrimanasaryan.meetingscheduler.port.adapters.backoffice.resource;
 
 import io.garrimanasaryan.meetingscheduler.application.BaseService;
-import io.garrimanasaryan.meetingscheduler.domain.common.BaseRepo;
 import io.garrimanasaryan.meetingscheduler.domain.common.Domain;
 import io.garrimanasaryan.meetingscheduler.port.adapters.backoffice.mapper.BaseMapper;
 import io.garrimanasaryan.meetingscheduler.port.adapters.backoffice.model.common.BaseBackofficeModel;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
 import java.util.Optional;
 
 public abstract class BaseController<
@@ -35,13 +33,6 @@ public abstract class BaseController<
     public BaseController(S service, M mapper) {
         this.service = service;
         this.mapper = mapper;
-    }
-
-    @GetMapping
-    public List<B> all(@RequestParam(name = "userId") @NotNull String userId) {
-        return service.all(userId).stream()
-                .map(mapper::toBackofficeModel)
-                .toList();
     }
 
     @PostMapping

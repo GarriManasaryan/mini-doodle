@@ -1,15 +1,15 @@
 package io.garrimanasaryan.meetingscheduler.port.adapters.backoffice.model.calendar;
 
-import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
 
 public record WorkingHourBackofficeModel(
-        @Nullable DayOfWeek dayOfWeek,
-        @Nullable LocalTime startAt,
-        @Nullable Duration duration
+        @NotNull DayOfWeek dayOfWeek,
+        @NotNull LocalTime startAt,
+        @NotNull Duration duration
 ) {
 
 }

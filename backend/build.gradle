@@ -14,6 +14,13 @@ java {
 	}
 }
 
+tasks.register('copyAppJar', Copy) {
+    dependsOn bootJar
+    from bootJar.archiveFile.get().asFile
+    rename { String filename -> return "app.jar" }
+    into "${rootProject.buildDir}/output-docker"
+}
+
 repositories {
 	mavenCentral()
 }
@@ -25,9 +32,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-flyway'
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation 'org.postgresql:postgresql'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-    testImplementation "org.testcontainers:testcontainers"
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation platform("org.testcontainers:testcontainers-bom:1.19.3")
+    testImplementation "org.testcontainers:postgresql"
+    testImplementation "org.testcontainers:junit-jupiter"
+    testImplementation "io.github.cdimascio:dotenv-java:3.0.0"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

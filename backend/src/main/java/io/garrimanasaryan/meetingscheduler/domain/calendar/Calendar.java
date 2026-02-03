@@ -16,7 +16,6 @@ public record Calendar(
         @NotNull TitleDescription titleDescription,
         @NotNull CalendarType type,
         @NotNull List<WorkingHour> workingHours,
-        @NotNull boolean allowOverlap,
         @NotNull Metadata metadata
 ) implements Domain {
 
@@ -26,8 +25,7 @@ public record Calendar(
             @NotNull String subjectUserId,
             @NotNull TitleDescription titleDescription,
             @NotNull CalendarType type,
-            @NotNull List<WorkingHour> workingHours,
-            @NotNull boolean allowOverlap
+            @NotNull List<WorkingHour> workingHours
     ) {
         WorkingHourPolicy.validate(workingHours);
         return new Calendar(
@@ -37,7 +35,6 @@ public record Calendar(
                 titleDescription,
                 type,
                 workingHours,
-                allowOverlap,
                 Metadata.create(by)
         );
     }
@@ -56,7 +53,6 @@ public record Calendar(
                 titleDescription,
                 type,
                 workingHours,
-                allowOverlap,
                 metadata.update(by)
         );
     }
@@ -69,7 +65,6 @@ public record Calendar(
                 titleDescription,
                 type,
                 workingHours,
-                allowOverlap,
                 metadata.delete(by)
         );
     }
