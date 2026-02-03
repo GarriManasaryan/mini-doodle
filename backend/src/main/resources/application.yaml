@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: meetingscheduler
+
+  datasource:
+    url: jdbc:postgresql://${PG_HOST}:5433/${PG_DATABASE_NAME}
+    username: ${PG_USERNAME}
+    password: ${PG_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    baseline-on-migrate: true
+  web:
+    error:
+      include-binding-errors: always
+      include-message: always
+      include-stacktrace: always
+      include-exception: true
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger
+  api-docs:
+    path: /v3/api-docs

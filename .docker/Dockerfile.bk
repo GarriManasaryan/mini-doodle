@@ -1,0 +1,7 @@
+FROM bellsoft/liberica-openjdk-debian:21
+
+COPY backend/build/output-docker/app.jar /app/
+
+WORKDIR /app
+
+ENTRYPOINT ["java", "-jar" ,"app.jar"]
